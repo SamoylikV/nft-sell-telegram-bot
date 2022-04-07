@@ -13,7 +13,6 @@ from aiogram.utils import executor
 json_file = open("token.json", "r")
 data = json.load(json_file)
 json_file.close()
-
 bot = Bot(token=data["Main"])
 dp = Dispatcher(bot, storage=MemoryStorage())
 dp.middleware.setup(LoggingMiddleware())
@@ -27,6 +26,9 @@ parameters = {
 json_file = open("eggs.json", "r")
 data = json.load(json_file)
 json_file.close()
+fire_invoices = []
+water_invoices = []
+rock_invoices = []
 
 
 class States(StatesGroup):
@@ -128,6 +130,28 @@ async def menu_eng(call: types.CallbackQuery, state: FSMContext):
 # --------------------------Egg-select-------------------------------------
 @dp.callback_query_handler(text="buy_egg_eng")
 async def egg_planet_eng(call: types.CallbackQuery):
+    global fire_invoices
+    global water_invoices
+    global rock_invoices
+    invoice_info = CryptoPay(user_id, parameters)
+    json_file = open("eggs.json", "r")
+    data = json.load(json_file)
+    json_file.close()
+    for id_ in fire_invoices:
+        if invoice_info.get_invoice(id_)[0]['status'] == "paid":
+            data['Amount']['Fire'] -= 1
+            fire_invoices.remove(id_)
+    for id_ in water_invoices:
+        if invoice_info.get_invoice(id_)[0]['status'] == "paid":
+            data['Amount']['Water'] -= 1
+            water_invoices.remove(id_)
+    for id_ in rock_invoices:
+        if invoice_info.get_invoice(id_)[0]['status'] == "paid":
+            data['Amount']['Rock'] -= 1
+            rock_invoices.remove(id_)
+    json_file = open("eggs.json", "w")
+    json.dump(data, json_file)
+    json_file.close()
     json_file = open("eggs.json", "r")
     data = json.load(json_file)
     json_file.close()
@@ -145,6 +169,28 @@ async def egg_planet_eng(call: types.CallbackQuery):
 
 @dp.callback_query_handler(text="buy_egg_ru")
 async def egg_planet_ru(call: types.CallbackQuery):
+    global fire_invoices
+    global water_invoices
+    global rock_invoices
+    invoice_info = CryptoPay(user_id, parameters)
+    json_file = open("eggs.json", "r")
+    data = json.load(json_file)
+    json_file.close()
+    for id_ in fire_invoices:
+        if invoice_info.get_invoice(id_)[0]['status'] == "paid":
+            data['Amount']['Fire'] -= 1
+            fire_invoices.remove(id_)
+    for id_ in water_invoices:
+        if invoice_info.get_invoice(id_)[0]['status'] == "paid":
+            data['Amount']['Water'] -= 1
+            water_invoices.remove(id_)
+    for id_ in rock_invoices:
+        if invoice_info.get_invoice(id_)[0]['status'] == "paid":
+            data['Amount']['Rock'] -= 1
+            rock_invoices.remove(id_)
+    json_file = open("eggs.json", "w")
+    json.dump(data, json_file)
+    json_file.close()
     json_file = open("eggs.json", "r")
     data = json.load(json_file)
     json_file.close()
@@ -201,6 +247,7 @@ async def egg_planet_ru(call: types.CallbackQuery):
 
 @dp.callback_query_handler(text="fire_egg_ru")
 async def fire_egg_ru(call: types.CallbackQuery):
+    global fire_invoices
     # unique_string = ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase) for _ in range(10))
     json_file = open("eggs.json", "r")
     data = json.load(json_file)
@@ -208,8 +255,8 @@ async def fire_egg_ru(call: types.CallbackQuery):
     if data['Amount']['Fire'] != 0:
         fire_egg_invoice = CryptoPay(user_id, parameters)
         invoice_id = \
-            fire_egg_invoice.create_invoice(1, 'openBot', 'https://t.me/confirm_payment_nft_bot?start=Fire', 'USDT',
-                                            'Подтверди покупку!')['result']['invoice_id']
+            fire_egg_invoice.create_invoice(1, 'USDT', '🔥 Огненное яйцо 🔥')['result']['invoice_id']
+        fire_invoices.append(invoice_id)
         pay_url = fire_egg_invoice.get_invoice(invoice_id)[0]['pay_url']
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
@@ -232,14 +279,15 @@ async def fire_egg_ru(call: types.CallbackQuery):
 
 @dp.callback_query_handler(text="water_egg_ru")
 async def water_egg_ru(call: types.CallbackQuery):
+    global water_invoices
     json_file = open("eggs.json", "r")
     data = json.load(json_file)
     json_file.close()
     if data['Amount']['Water'] != 0:
         water_egg_invoice = CryptoPay(user_id, parameters)
         invoice_id = \
-            water_egg_invoice.create_invoice(1, 'openBot', 'https://t.me/confirm_payment_nft_bot?start=Water', 'USDT',
-                                             'Подтверди покупку!')['result']['invoice_id']
+            water_egg_invoice.create_invoice(1, 'USDT', '💧 Яйцо воды 💧')['result']['invoice_id']
+        water_invoices.append(invoice_id)
         pay_url = water_egg_invoice.get_invoice(invoice_id)[0]['pay_url']
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
@@ -262,16 +310,16 @@ async def water_egg_ru(call: types.CallbackQuery):
 
 @dp.callback_query_handler(text="rock_egg_ru")
 async def rock_egg_ru(call: types.CallbackQuery):
+    global rock_invoices
     json_file = open("eggs.json", "r")
     data = json.load(json_file)
     json_file.close()
     if data['Amount']['Rock'] != 0:
         rock_egg_invoice = CryptoPay(user_id, parameters)
         invoice_id = \
-            rock_egg_invoice.create_invoice(1, 'openBot', 'https://t.me/confirm_payment_nft_bot?start=Rock', 'USDT',
-                                            'Подтверди покупку!')['result']['invoice_id']
+            rock_egg_invoice.create_invoice(1, 'USDT', '🪨 Яйцо скал 🪨')['result']['invoice_id']
+        rock_invoices.append(invoice_id)
         pay_url = rock_egg_invoice.get_invoice(invoice_id)[0]['pay_url']
-
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
             types.InlineKeyboardButton(text='CRYPTOBOT', url=pay_url),
@@ -293,14 +341,15 @@ async def rock_egg_ru(call: types.CallbackQuery):
 
 @dp.callback_query_handler(text="fire_egg_eng")
 async def fire_egg_eng(call: types.CallbackQuery):
+    global fire_invoices
     json_file = open("eggs.json", "r")
     data = json.load(json_file)
     json_file.close()
     if data['Amount']['Fire'] != 0:
         fire_egg_invoice = CryptoPay(user_id, parameters)
         invoice_id = \
-            fire_egg_invoice.create_invoice(1, 'openBot', 'https://t.me/confirm_payment_nft_bot?start=Fire', 'USDT',
-                                            'Confirm your payment!')['result']['invoice_id']
+            fire_egg_invoice.create_invoice(1, 'USDT', '🔥 Fire egg 🔥')['result']['invoice_id']
+        fire_invoices.append(invoice_id)
         pay_url = fire_egg_invoice.get_invoice(invoice_id)[0]['pay_url']
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(types.InlineKeyboardButton(text='CRYPTOBOT', url=pay_url),
@@ -322,14 +371,15 @@ async def fire_egg_eng(call: types.CallbackQuery):
 
 @dp.callback_query_handler(text="water_egg_eng")
 async def water_egg_eng(call: types.CallbackQuery):
+    global water_invoices
     json_file = open("eggs.json", "r")
     data = json.load(json_file)
     json_file.close()
     if data['Amount']['Water'] != 0:
         water_egg_invoice = CryptoPay(user_id, parameters)
         invoice_id = \
-            water_egg_invoice.create_invoice(1, 'openBot', 'https://t.me/confirm_payment_nft_bot?start=Water', 'USDT',
-                                             'Confirm your payment!')['result']['invoice_id']
+            water_egg_invoice.create_invoice(1, 'USDT', '💧 Water egg 💧')['result']['invoice_id']
+        water_invoices.append(invoice_id)
         pay_url = water_egg_invoice.get_invoice(invoice_id)[0]['pay_url']
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(types.InlineKeyboardButton(text='CRYPTOBOT', url=pay_url),
@@ -351,14 +401,15 @@ async def water_egg_eng(call: types.CallbackQuery):
 
 @dp.callback_query_handler(text="rock_egg_eng")
 async def rock_egg_eng(call: types.CallbackQuery):
+    global rock_invoices
     json_file = open("eggs.json", "r")
     data = json.load(json_file)
     json_file.close()
     if data['Amount']['Water'] != 0:
         rock_egg_invoice = CryptoPay(user_id, parameters)
         invoice_id = \
-            rock_egg_invoice.create_invoice(1, 'openBot', 'https://t.me/confirm_payment_nft_bot?start=Rock', 'USDT',
-                                            'Confirm your payment!')['result']['invoice_id']
+            rock_egg_invoice.create_invoice(1, 'USDT', '🪨 Rock egg 🪨')['result']['invoice_id']
+        rock_invoices.append(invoice_id)
         pay_url = rock_egg_invoice.get_invoice(invoice_id)[0]['pay_url']
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(types.InlineKeyboardButton(text='CRYPTOBOT', url=pay_url),
