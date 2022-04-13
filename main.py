@@ -20,8 +20,8 @@ logging.basicConfig(level=logging.INFO)
 user_id = data["User_id"]
 parameters = {
     "token": data["Cryptobot"],
-    # "api_url": "https://pay.crypt.bot/"
-    "api_url": "https://testnet-pay.crypt.bot/"
+    "api_url": "https://pay.crypt.bot/"
+    # "api_url": "https://testnet-pay.crypt.bot/"
 }
 json_file = open("eggs.json", "r")
 data = json.load(json_file)
@@ -60,6 +60,7 @@ async def change_lang_ru(call: types.CallbackQuery, state: FSMContext):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(types.InlineKeyboardButton(text="🥚 Купить яйцо", callback_data="buy_egg_ru"),
                  # types.InlineKeyboardButton(text="🐲 Купить дракона", callback_data="buy_dragon_ru"),
+                 types.InlineKeyboardButton(text="🛍️ Инвентарь", callback_data="inventory_ru"),
                  types.InlineKeyboardButton(text="Приложение", callback_data="app_ru"),
                  types.InlineKeyboardButton(text="🤝 Служба поддержки", url='http://t.me/nft_seller_support_bot'))
     async with state.proxy() as data:
@@ -77,6 +78,7 @@ async def change_lang_eng(call: types.CallbackQuery, state: FSMContext):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(types.InlineKeyboardButton(text="🥚 Buy egg", callback_data="buy_egg_eng"),
                  # types.InlineKeyboardButton(text="🐲 Buy dragon", callback_data="buy_dragon_eng"),
+                 types.InlineKeyboardButton(text="🛍️ Inventory", callback_data="inventory_eng"),
                  types.InlineKeyboardButton(text="App", callback_data="app_eng"),
                  types.InlineKeyboardButton(text="🤝 Support", url='http://t.me/nft_seller_support_bot'))
     async with state.proxy() as data:
@@ -98,6 +100,7 @@ async def menu_ru(call: types.CallbackQuery, state: FSMContext):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(types.InlineKeyboardButton(text="🥚 Купить яйцо", callback_data="buy_egg_ru"),
                  # types.InlineKeyboardButton(text="🐲 Купить дракона", callback_data="buy_dragon_ru"),
+                 types.InlineKeyboardButton(text="🛍️ Инвентарь", callback_data="inventory_ru"),
                  types.InlineKeyboardButton(text="Приложение", callback_data="app_ru"),
                  types.InlineKeyboardButton(text="🤝 Служба поддержки", url='http://t.me/nft_seller_support_bot'))
     async with state.proxy() as data:
@@ -114,6 +117,7 @@ async def menu_eng(call: types.CallbackQuery, state: FSMContext):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(types.InlineKeyboardButton(text="🥚 Buy egg", callback_data="buy_egg_eng"),
                  # types.InlineKeyboardButton(text="🐲 Buy dragon", callback_data="buy_dragon_eng"),
+                 types.InlineKeyboardButton(text="🛍️ Inventory", callback_data="inventory_eng"),
                  types.InlineKeyboardButton(text="App", callback_data="app_eng"),
                  types.InlineKeyboardButton(text="🤝 Support", url='http://t.me/nft_seller_support_bot'))
     async with state.proxy() as data:
@@ -126,7 +130,6 @@ async def menu_eng(call: types.CallbackQuery, state: FSMContext):
 
 # ---------------------------Main-Menu-------------------------------------
 
-
 # --------------------------Egg-select-------------------------------------
 @dp.callback_query_handler(text="buy_egg_eng")
 async def egg_planet_eng(call: types.CallbackQuery):
@@ -137,18 +140,31 @@ async def egg_planet_eng(call: types.CallbackQuery):
     json_file = open("eggs.json", "r")
     data = json.load(json_file)
     json_file.close()
+
+    json_inventory = open("inventory.json", "r")
+    data_inventory = json.load(json_inventory)
+    json_inventory.close()
+
     for id_ in fire_invoices:
-        if invoice_info.get_invoice(id_)[0]['status'] == "paid":
+        if invoice_info.get_invoice(id_[0])[0]['status'] == "paid":
             data['Amount']['Fire'] -= 1
+            data_inventory['Users'].append(id_)
             fire_invoices.remove(id_)
     for id_ in water_invoices:
-        if invoice_info.get_invoice(id_)[0]['status'] == "paid":
+        if invoice_info.get_invoice(id_[0])[0]['status'] == "paid":
             data['Amount']['Water'] -= 1
+            data_inventory['Users'].append(id_)
             water_invoices.remove(id_)
     for id_ in rock_invoices:
-        if invoice_info.get_invoice(id_)[0]['status'] == "paid":
+        if invoice_info.get_invoice(id_[0])[0]['status'] == "paid":
             data['Amount']['Rock'] -= 1
+            data_inventory['Users'].append(id_)
             rock_invoices.remove(id_)
+
+    json_inventory = open("inventory.json", "w")
+    json.dump(data_inventory, json_inventory)
+    json_inventory.close()
+
     json_file = open("eggs.json", "w")
     json.dump(data, json_file)
     json_file.close()
@@ -156,10 +172,10 @@ async def egg_planet_eng(call: types.CallbackQuery):
     data = json.load(json_file)
     json_file.close()
     keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(types.InlineKeyboardButton(text=f"🔥 Fire {data['Amount']['Fire']}/30", callback_data="fire_egg_eng"),
-                 types.InlineKeyboardButton(text=f"💧 Water {data['Amount']['Water']}/40",
+    keyboard.add(types.InlineKeyboardButton(text=f"🔥 Fire {data['Amount']['Fire']}/29", callback_data="fire_egg_eng"),
+                 types.InlineKeyboardButton(text=f"💧 Water {data['Amount']['Water']}/27",
                                             callback_data="water_egg_eng"),
-                 types.InlineKeyboardButton(text=f"🪨 Rock {data['Amount']['Rock']}/50", callback_data="rock_egg_eng"),
+                 types.InlineKeyboardButton(text=f"🪨 Rock {data['Amount']['Rock']}/30", callback_data="rock_egg_eng"),
                  types.InlineKeyboardButton(text="↩️ Back", callback_data="menu_eng"))
     await bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                 text='🥚 What egg do you want?')
@@ -176,18 +192,30 @@ async def egg_planet_ru(call: types.CallbackQuery):
     json_file = open("eggs.json", "r")
     data = json.load(json_file)
     json_file.close()
+
+    json_inventory = open("inventory.json", "r")
+    data_inventory = json.load(json_inventory)
+    json_inventory.close()
+
     for id_ in fire_invoices:
-        if invoice_info.get_invoice(id_)[0]['status'] == "paid":
+        if invoice_info.get_invoice(id_[0])[0]['status'] == "paid":
             data['Amount']['Fire'] -= 1
+            data_inventory['Users'].append(id_)
             fire_invoices.remove(id_)
     for id_ in water_invoices:
-        if invoice_info.get_invoice(id_)[0]['status'] == "paid":
+        if invoice_info.get_invoice(id_[0])[0]['status'] == "paid":
             data['Amount']['Water'] -= 1
+            data_inventory['Users'].append(id_)
             water_invoices.remove(id_)
     for id_ in rock_invoices:
-        if invoice_info.get_invoice(id_)[0]['status'] == "paid":
+        if invoice_info.get_invoice(id_[0])[0]['status'] == "paid":
             data['Amount']['Rock'] -= 1
+            data_inventory['Users'].append(id_)
             rock_invoices.remove(id_)
+
+    json_inventory = open("inventory.json", "w")
+    json.dump(data_inventory, json_inventory)
+    json_inventory.close()
     json_file = open("eggs.json", "w")
     json.dump(data, json_file)
     json_file.close()
@@ -195,9 +223,9 @@ async def egg_planet_ru(call: types.CallbackQuery):
     data = json.load(json_file)
     json_file.close()
     keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(types.InlineKeyboardButton(text=f"🔥 Огня {data['Amount']['Fire']}/30", callback_data="fire_egg_ru"),
-                 types.InlineKeyboardButton(text=f"💧 Воды {data['Amount']['Water']}/40", callback_data="water_egg_ru"),
-                 types.InlineKeyboardButton(text=f"🪨 Скал {data['Amount']['Rock']}/50", callback_data="rock_egg_ru"),
+    keyboard.add(types.InlineKeyboardButton(text=f"🔥 Огня {data['Amount']['Fire']}/29", callback_data="fire_egg_ru"),
+                 types.InlineKeyboardButton(text=f"💧 Воды {data['Amount']['Water']}/27", callback_data="water_egg_ru"),
+                 types.InlineKeyboardButton(text=f"🪨 Скал {data['Amount']['Rock']}/30", callback_data="rock_egg_ru"),
                  types.InlineKeyboardButton(text="↩️ Назад", callback_data="menu_ru"))
     await bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                 text=f"🥚 Какое яйцо ты хочешь?")
@@ -255,8 +283,10 @@ async def fire_egg_ru(call: types.CallbackQuery):
     if data['Amount']['Fire'] != 0:
         fire_egg_invoice = CryptoPay(user_id, parameters)
         invoice_id = \
-            fire_egg_invoice.create_invoice(1, 'USDT', '🔥 Огненное яйцо 🔥')['result']['invoice_id']
-        fire_invoices.append(invoice_id)
+            fire_egg_invoice.create_invoice(110, 'TON', '🔥 Огненное яйцо 🔥')['result']['invoice_id']
+
+        fire_invoices.append([invoice_id, call.from_user.full_name, call.from_user.id, "wallet", "fire"])
+
         pay_url = fire_egg_invoice.get_invoice(invoice_id)[0]['pay_url']
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
@@ -286,8 +316,8 @@ async def water_egg_ru(call: types.CallbackQuery):
     if data['Amount']['Water'] != 0:
         water_egg_invoice = CryptoPay(user_id, parameters)
         invoice_id = \
-            water_egg_invoice.create_invoice(1, 'USDT', '💧 Яйцо воды 💧')['result']['invoice_id']
-        water_invoices.append(invoice_id)
+            water_egg_invoice.create_invoice(110, 'TON', '💧 Яйцо воды 💧')['result']['invoice_id']
+        water_invoices.append([invoice_id, call.from_user.full_name, call.from_user.id, "wallet", "water"])
         pay_url = water_egg_invoice.get_invoice(invoice_id)[0]['pay_url']
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
@@ -317,8 +347,8 @@ async def rock_egg_ru(call: types.CallbackQuery):
     if data['Amount']['Rock'] != 0:
         rock_egg_invoice = CryptoPay(user_id, parameters)
         invoice_id = \
-            rock_egg_invoice.create_invoice(1, 'USDT', '🪨 Яйцо скал 🪨')['result']['invoice_id']
-        rock_invoices.append(invoice_id)
+            rock_egg_invoice.create_invoice(110, 'TON', '🪨 Яйцо скал 🪨')['result']['invoice_id']
+        rock_invoices.append([invoice_id, call.from_user.full_name, call.from_user.id, "wallet", "rock"])
         pay_url = rock_egg_invoice.get_invoice(invoice_id)[0]['pay_url']
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
@@ -348,8 +378,8 @@ async def fire_egg_eng(call: types.CallbackQuery):
     if data['Amount']['Fire'] != 0:
         fire_egg_invoice = CryptoPay(user_id, parameters)
         invoice_id = \
-            fire_egg_invoice.create_invoice(1, 'USDT', '🔥 Fire egg 🔥')['result']['invoice_id']
-        fire_invoices.append(invoice_id)
+            fire_egg_invoice.create_invoice(110, 'TON', '🔥 Fire egg 🔥')['result']['invoice_id']
+        fire_invoices.append([invoice_id, call.from_user.full_name, call.from_user.id, "wallet", "fire"])
         pay_url = fire_egg_invoice.get_invoice(invoice_id)[0]['pay_url']
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(types.InlineKeyboardButton(text='CRYPTOBOT', url=pay_url),
@@ -378,8 +408,8 @@ async def water_egg_eng(call: types.CallbackQuery):
     if data['Amount']['Water'] != 0:
         water_egg_invoice = CryptoPay(user_id, parameters)
         invoice_id = \
-            water_egg_invoice.create_invoice(1, 'USDT', '💧 Water egg 💧')['result']['invoice_id']
-        water_invoices.append(invoice_id)
+            water_egg_invoice.create_invoice(110, 'TON', '💧 Water egg 💧')['result']['invoice_id']
+        water_invoices.append([invoice_id, call.from_user.full_name, call.from_user.id, "wallet", "water"])
         pay_url = water_egg_invoice.get_invoice(invoice_id)[0]['pay_url']
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(types.InlineKeyboardButton(text='CRYPTOBOT', url=pay_url),
@@ -408,8 +438,8 @@ async def rock_egg_eng(call: types.CallbackQuery):
     if data['Amount']['Water'] != 0:
         rock_egg_invoice = CryptoPay(user_id, parameters)
         invoice_id = \
-            rock_egg_invoice.create_invoice(1, 'USDT', '🪨 Rock egg 🪨')['result']['invoice_id']
-        rock_invoices.append(invoice_id)
+            rock_egg_invoice.create_invoice(110, 'TON', '🪨 Rock egg 🪨')['result']['invoice_id']
+        rock_invoices.append([invoice_id, call.from_user.full_name, call.from_user.id, "wallet", "rock"])
         pay_url = rock_egg_invoice.get_invoice(invoice_id)[0]['pay_url']
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(types.InlineKeyboardButton(text='CRYPTOBOT', url=pay_url),
@@ -430,6 +460,84 @@ async def rock_egg_eng(call: types.CallbackQuery):
 
 
 # --------------------------Egg-buying--------------------------------------
+
+# --------------------------Inventory---------------------------------------
+
+@dp.callback_query_handler(text="inventory_ru")
+async def inventory(call: types.CallbackQuery):
+    json_inventory = open("inventory.json", "r")
+    data_inventory = json.load(json_inventory)
+    json_inventory.close()
+    c = 0
+    cur_elem = ''
+    info = []
+    info_counter = {}
+    res_string = ''
+    for user in data_inventory["Users"]:
+        if user[2] == call.from_user.id:
+            info.append(user[-1])
+    if len(info) == 0:
+        res_string = 'Пусто '
+    for elem in info:
+        if elem != cur_elem:
+            cur_elem = elem
+            info_counter[elem] = 1
+        else:
+            info_counter[elem] += 1
+    for item, amount in info_counter.items():
+        c += 1
+        if c != len(info_counter):
+            res_string += f'{amount}x {item}\n'
+        else:
+            res_string += f'{amount}x {item}'
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(
+        types.InlineKeyboardButton(text="↩️ Назад", callback_data="menu_ru"))
+
+    await bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                text=res_string)
+    await bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                        reply_markup=keyboard)
+
+
+@dp.callback_query_handler(text="inventory_eng")
+async def inventory(call: types.CallbackQuery):
+    json_inventory = open("inventory.json", "r")
+    data_inventory = json.load(json_inventory)
+    json_inventory.close()
+    c = 0
+    cur_elem = ''
+    info = []
+    info_counter = {}
+    res_string = ''
+    for user in data_inventory["Users"]:
+        if user[2] == call.from_user.id:
+            info.append(user[-1])
+    if len(info) == 0:
+        res_string = 'Empty'
+    for elem in info:
+        if elem != cur_elem:
+            cur_elem = elem
+            info_counter[elem] = 1
+        else:
+            info_counter[elem] += 1
+    for item, amount in info_counter.items():
+        c += 1
+        if c != len(info_counter):
+            res_string += f'{amount}x {item}\n'
+        else:
+            res_string += f'{amount}x {item}'
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(
+        types.InlineKeyboardButton(text="↩️ back", callback_data="menu_eng"))
+
+    await bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                text=res_string)
+    await bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                        reply_markup=keyboard)
+
+
+# --------------------------Inventory---------------------------------------
 
 # --------------------------Application-------------------------------------
 
